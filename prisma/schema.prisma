@@ -269,6 +269,8 @@ model SavedVehicle {
   id        String   @id @default(cuid())
   userId    String
   vehicleId String
+  /// True when the save came from a right swipe, so undoing that swipe removes it
+  viaSwipe  Boolean  @default(false)
   createdAt DateTime @default(now())
 
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
