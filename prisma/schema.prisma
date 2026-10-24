@@ -1,0 +1,358 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ──────────────────────────────────────────────────────────────────
+
+enum VehicleStatus {
+  DRAFT
+  ACTIVE
+  PENDING
+  SOLD
+  REMOVED
+}
+
+enum SwipeDirection {
+  LIKE
+  PASS
+}
+
+enum BodyStyle {
+  SEDAN
+  SUV
+  COUPE
+  HATCHBACK
+  TRUCK
+  CONVERTIBLE
+  WAGON
+  MINIVAN
+}
+
+enum Transmission {
+  AUTOMATIC
+  MANUAL
+}
+
+enum FuelType {
+  GASOLINE
+  DIESEL
+  HYBRID
+  PLUG_IN_HYBRID
+  ELECTRIC
+}
+
+enum Drivetrain {
+  FWD
+  RWD
+  AWD
+  FOUR_WD
+}
+
+enum Condition {
+  NEW
+  USED
+  CERTIFIED
+}
+
+enum SellerType {
+  PRIVATE
+  DEALER
+}
+
+enum NotificationType {
+  INQUIRY
+  MESSAGE
+  LISTING_SAVED
+  SYSTEM
+}
+
+enum ReportReason {
+  SCAM
+  MISLEADING
+  INAPPROPRIATE
+  DUPLICATE
+  SOLD
+  OTHER
+}
+
+enum ThemePreference {
+  SYSTEM
+  LIGHT
+  DARK
+}
+
+// ─── Auth ───────────────────────────────────────────────────────────────────
+
+model User {
+  id            String     @id @default(cuid())
+  name          String?
+  email         String     @unique
+  emailVerified DateTime?
+  passwordHash  String?
+  image         String?
+  sellerType    SellerType @default(PRIVATE)
+  dealerName    String?
+  phone         String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  preferences   UserPreferences?
+  vehicles      Vehicle[]
+  swipes        Swipe[]
+  saved         SavedVehicle[]
+  buyerConvos   Conversation[]   @relation("BuyerConversations")
+  sellerConvos  Conversation[]   @relation("SellerConversations")
+  messages      Message[]
+  views         ListingView[]
+  notifications Notification[]
+  reports       Report[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─── Preferences ────────────────────────────────────────────────────────────
+
+model UserPreferences {
+  id              String          @id @default(cuid())
+  userId          String          @unique
+  preferredMakes  String[]        @default([])
+  preferredModels String[]        @default([])
+  bodyStyles      BodyStyle[]     @default([])
+  transmissions   Transmission[]  @default([])
+  fuelTypes       FuelType[]      @default([])
+  sellerType      SellerType?
+  minPrice        Int?
+  maxPrice        Int?
+  minYear         Int?
+  maxYear         Int?
+  maxMileage      Int?
+  location        String?
+  latitude        Float?
+  longitude       Float?
+  /// Search radius in km
+  radius          Int?
+  onboardedAt     DateTime?
+  notifyMessages  Boolean         @default(true)
+  notifyInquiries Boolean         @default(true)
+  theme           ThemePreference @default(SYSTEM)
+  updatedAt       DateTime        @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─── Marketplace ────────────────────────────────────────────────────────────
+
+model Vehicle {
+  id             String        @id @default(cuid())
+  sellerId       String
+  make           String        @db.VarChar(60)
+  model          String        @db.VarChar(80)
+  year           Int
+  trim           String?       @db.VarChar(80)
+  price          Int
+  mileage        Int
+  description    String?       @db.Text
+  condition      Condition     @default(USED)
+  location       String        @db.VarChar(120)
+  latitude       Float?
+  longitude      Float?
+  transmission   Transmission?
+  fuelType       FuelType?
+  drivetrain     Drivetrain?
+  bodyStyle      BodyStyle?
+  engine         String?       @db.VarChar(120)
+  horsepower     Int?
+  exteriorColour String?       @db.VarChar(60)
+  interiorColour String?       @db.VarChar(60)
+  vin            String?       @db.VarChar(17)
+  owners         Int?
+  features       String[]      @default([])
+  history        String?       @db.Text
+  status         VehicleStatus @default(DRAFT)
+  isDemo         Boolean       @default(false)
+  publishedAt    DateTime?
+  soldAt         DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  seller        User           @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  images        VehicleImage[]
+  swipes        Swipe[]
+  saved         SavedVehicle[]
+  conversations Conversation[]
+  views         ListingView[]
+  reports       Report[]
+
+  @@index([status, publishedAt])
+  @@index([status, price])
+  @@index([status, mileage])
+  @@index([status, year])
+  @@index([make, model])
+  @@index([sellerId, status])
+}
+
+model VehicleImage {
+  id         String   @id @default(cuid())
+  vehicleId  String
+  imageUrl   String   @db.VarChar(1024)
+  /// Storage provider id (e.g. Cloudinary public_id) used for deletion
+  storageKey String?  @db.VarChar(512)
+  alt        String?  @db.VarChar(200)
+  position   Int
+  createdAt  DateTime @default(now())
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@index([vehicleId, position])
+}
+
+model Swipe {
+  id        String         @id @default(cuid())
+  userId    String
+  vehicleId String
+  direction SwipeDirection
+  createdAt DateTime       @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, vehicleId])
+  @@index([userId, createdAt])
+  @@index([vehicleId])
+}
+
+model SavedVehicle {
+  id        String   @id @default(cuid())
+  userId    String
+  vehicleId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, vehicleId])
+  @@index([vehicleId, createdAt])
+}
+
+model ListingView {
+  id        String   @id @default(cuid())
+  vehicleId String
+  viewerId  String?
+  createdAt DateTime @default(now())
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  viewer  User?   @relation(fields: [viewerId], references: [id], onDelete: SetNull)
+
+  @@index([vehicleId, createdAt])
+  @@index([viewerId, createdAt])
+}
+
+model Report {
+  id         String       @id @default(cuid())
+  reporterId String
+  vehicleId  String
+  reason     ReportReason
+  details    String?      @db.Text
+  createdAt  DateTime     @default(now())
+
+  reporter User    @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  vehicle  Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@unique([reporterId, vehicleId])
+  @@index([vehicleId])
+}
+
+// ─── Messaging ──────────────────────────────────────────────────────────────
+
+model Conversation {
+  id            String   @id @default(cuid())
+  vehicleId     String
+  buyerId       String
+  sellerId      String
+  lastMessageAt DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  vehicle  Vehicle   @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  buyer    User      @relation("BuyerConversations", fields: [buyerId], references: [id], onDelete: Cascade)
+  seller   User      @relation("SellerConversations", fields: [sellerId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  @@unique([vehicleId, buyerId])
+  @@index([buyerId, lastMessageAt])
+  @@index([sellerId, lastMessageAt])
+}
+
+model Message {
+  id             String    @id @default(cuid())
+  conversationId String
+  senderId       String
+  content        String    @db.Text
+  readAt         DateTime?
+  createdAt      DateTime  @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+  @@index([senderId])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String           @db.VarChar(160)
+  content   String           @db.VarChar(500)
+  href      String?          @db.VarChar(300)
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt, createdAt])
+}
