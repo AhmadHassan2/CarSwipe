@@ -7,16 +7,12 @@ import { db } from "@/server/db";
 import { hashPassword } from "@/server/password";
 import { limit, rateLimitsEnabled } from "@/server/rate-limit";
 import { loginSchema, signupSchema } from "@/features/auth/schemas";
+import { safeRedirect } from "@/lib/safe-redirect";
 
 export type AuthState = { error?: string; fieldErrors?: Record<string, string>; values?: { name?: string; email?: string } };
 
 export async function signOutAction() {
   await signOut({ redirectTo: "/" });
-}
-
-/** Only same-site relative paths are allowed as post-login destinations. */
-function safeRedirect(target: unknown) {
-  return typeof target === "string" && target.startsWith("/") && !target.startsWith("//") ? target : "/swipe";
 }
 
 export async function loginAction(_prev: AuthState, formData: FormData): Promise<AuthState> {

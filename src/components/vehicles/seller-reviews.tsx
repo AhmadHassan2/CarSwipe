@@ -94,7 +94,7 @@ export function SellerReviews({
               <span className="text-muted-foreground">from {summary.count} {summary.count === 1 ? "buyer" : "buyers"}</span>
             </p>
           ) : (
-            <p className="mt-1 text-sm text-muted-foreground">{sellerName} hasn't been reviewed yet.</p>
+            <p className="mt-1 text-sm text-muted-foreground">{sellerName} hasn’t been reviewed yet.</p>
           )}
         </div>
         {canReview && !editing && (
@@ -133,7 +133,7 @@ export function SellerReviews({
       ) : null}
 
       {signedIn && !canReview && (
-        <p className="mt-3 text-xs text-muted-foreground">You can review this seller after you've messaged them about a listing.</p>
+        <p className="mt-3 text-xs text-muted-foreground">You can review this seller after you’ve messaged them about a listing.</p>
       )}
     </section>
   );

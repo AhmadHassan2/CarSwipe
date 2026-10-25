@@ -61,7 +61,7 @@ export function NotificationsMenu() {
           ) : !data?.notifications.length ? (
             <div className="p-8 text-center">
               <Bell className="mx-auto mb-2 size-6 text-muted-foreground" />
-              <p className="text-sm font-medium">You're all caught up</p>
+              <p className="text-sm font-medium">You’re all caught up</p>
               <p className="text-xs text-muted-foreground">Inquiries and messages will show up here.</p>
             </div>
           ) : (

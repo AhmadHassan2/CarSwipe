@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Heart, RotateCcw, SearchX, X } from "lucide-react";
 import { toast } from "sonner";
 import { SwipeCard, type SwipeVehicle } from "./swipe-card";
@@ -18,6 +19,7 @@ const REFILL_AT = 3;
 
 export function SwipeDeck({ initial, queryString }: { initial: SwipeVehicle[]; queryString: string }) {
   const viewer = useViewer();
+  const router = useRouter();
   const [deck, setDeck] = useState(initial);
   const [history, setHistory] = useState<{ vehicle: SwipeVehicle; direction: Dir }[]>([]);
   const [exhausted, setExhausted] = useState(initial.length === 0);
@@ -47,10 +49,6 @@ export function SwipeDeck({ initial, queryString }: { initial: SwipeVehicle[]; q
     }
   }, [exhausted, queryString, viewer]);
 
-  useEffect(() => {
-    if (deck.length <= REFILL_AT) void refill();
-  }, [deck.length, refill]);
-
   const swipe = useCallback(
     (direction: Dir) => {
       const vehicle = deck[0];
@@ -58,12 +56,13 @@ export function SwipeDeck({ initial, queryString }: { initial: SwipeVehicle[]; q
       setHistory((h) => [...h.slice(-9), { vehicle, direction }]);
       // let the fling animation finish before removing the card
       setTimeout(() => setDeck((d) => d.filter((v) => v.id !== vehicle.id)), 200);
+      if (deck.length - 1 <= REFILL_AT) void refill();
 
       if (direction === "LIKE") useSavedStore.getState().add(vehicle.id);
       if (!viewer) {
         guestSwipes.record({ vehicleId: vehicle.id, direction });
         if (direction === "LIKE" && guestSwipes.swipes.filter((s) => s.direction === "LIKE").length === 2) {
-          toast("Sign in to keep your likes", { action: { label: "Sign in", onClick: () => (window.location.href = "/login?callbackUrl=/swipe") } });
+          toast("Sign in to keep your likes", { action: { label: "Sign in", onClick: () => router.push("/login?callbackUrl=/swipe") } });
         }
         return;
       }
@@ -72,7 +71,7 @@ export function SwipeDeck({ initial, queryString }: { initial: SwipeVehicle[]; q
         if (direction === "LIKE") useSavedStore.getState().remove(vehicle.id);
       });
     },
-    [deck, viewer, guestSwipes],
+    [deck, viewer, guestSwipes, refill, router],
   );
 
   const undo = useCallback(async () => {

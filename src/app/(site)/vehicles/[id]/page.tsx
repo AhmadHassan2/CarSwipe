@@ -35,7 +35,7 @@ export default async function VehiclePage({ params }: PageProps<"/vehicles/[id]"
   const viewerId = session?.user?.id ?? null;
   if (!v) notFound();
   const isOwner = viewerId === v.sellerId;
-  if ((v.status === "DRAFT" || v.status === "REMOVED") && !isOwner) notFound();
+  if (v.status === "REMOVED" || (v.status === "DRAFT" && !isOwner)) notFound();
   if (!isOwner) await recordView(v.id, viewerId).catch(() => {});
 
   const [related, rating, reviews, eligibility] = await Promise.all([

@@ -103,7 +103,7 @@ export function Thread({ conversationId, viewerId, initial, closed }: { conversa
     });
   };
 
-  let lastDay = "";
+  const dayLabels = messages.map((m) => dayLabel(new Date(m.createdAt)));
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="min-h-0 flex-1 space-y-1.5 overflow-y-auto p-4" role="log" aria-live="polite" aria-label="Messages">
@@ -111,9 +111,8 @@ export function Thread({ conversationId, viewerId, initial, closed }: { conversa
         {messages.map((m, i) => {
           const mine = m.senderId === viewerId;
           const d = new Date(m.createdAt);
-          const label = dayLabel(d);
-          const showDay = label !== lastDay;
-          lastDay = label;
+          const label = dayLabels[i]!;
+          const showDay = i === 0 || label !== dayLabels[i - 1];
           const nextSame = messages[i + 1]?.senderId === m.senderId;
           return (
             <div key={m.id}>
