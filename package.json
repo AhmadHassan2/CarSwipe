@@ -15,8 +15,7 @@
     "db:studio": "prisma studio",
     "postinstall": "prisma generate",
     "test": "vitest run",
-    "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.3",
@@ -64,5 +63,8 @@
     "typescript": "^5",
     "vitest": "^5.0.5"
   },
-  "packageManager": "pnpm@12.10.1"
+  "packageManager": "pnpm@12.10.1",
+  "engines": {
+    "node": ">=20.9"
+  }
 }

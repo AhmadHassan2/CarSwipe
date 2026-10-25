@@ -5,6 +5,7 @@ import { PrismaClient } from "../src/generated/prisma/client";
 import { CITIES } from "../src/lib/locations";
 import { DEMO_BUYER, DEMO_PASSWORD, REVIEWERS, REVIEWS, SELLERS } from "./seed-data/sellers";
 import { VEHICLES } from "./seed-data/vehicles";
+import { demoViewTimestamps } from "./seed-data/views";
 
 const db = new PrismaClient({
   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL! }),
@@ -94,7 +95,7 @@ async function main() {
     const listedAt = new Date(now - v.daysAgo * DAY);
     const title = `${v.year} ${v.make} ${v.model}`;
 
-    await db.vehicle.create({
+    const created = await db.vehicle.create({
       data: {
         sellerId: seller.id,
         make: v.make,
@@ -132,7 +133,12 @@ async function main() {
           })),
         },
       },
+      select: { id: true },
     });
+    if (status === "ACTIVE") {
+      const views = demoViewTimestamps(created.id + v.model, v.daysAgo, now);
+      if (views.length) await db.listingView.createMany({ data: views.map((createdAt) => ({ vehicleId: created.id, createdAt })) });
+    }
   }
 
   console.log("Adding seller reviews…");

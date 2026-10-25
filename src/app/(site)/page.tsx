@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { ArrowRight, Heart, MessageCircle, Scale, X } from "lucide-react";
+import { ArrowRight, Heart, MessageCircle, Scale } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { VehicleGrid } from "@/components/vehicles/vehicle-card";
-import { VehicleImage } from "@/components/vehicles/vehicle-image";
+import { HeroSwipeDemo } from "@/components/landing/hero-swipe-demo";
 import { getFeaturedVehicles } from "@/server/services/vehicles";
 import { BODY_STYLE_LABELS } from "@/features/vehicles/constants";
 import { formatKm, formatPrice, vehicleTitle } from "@/lib/format";
@@ -17,8 +17,6 @@ const BODY_SHORTCUTS = ["SUV", "SEDAN", "COUPE", "TRUCK", "HATCHBACK", "WAGON"] 
 
 export default async function HomePage() {
   const featured = await getFeaturedVehicles(8);
-  const [hero, ...rest] = featured;
-  const behind = rest.slice(0, 2);
 
   return (
     <>
@@ -48,35 +46,16 @@ export default async function HomePage() {
             </div>
           </div>
 
-          {hero && (
-            <div className="relative mx-auto w-full max-w-sm lg:max-w-md" aria-hidden="true">
-              {behind.map((v, i) => (
-                <div
-                  key={v.id}
-                  className="absolute inset-0 overflow-hidden rounded-3xl border bg-card shadow-card"
-                  style={{ transform: `rotate(${i === 0 ? 6 : -5}deg) translateY(${12 + i * 6}px) scale(${0.95 - i * 0.03})` }}
-                >
-                  <VehicleImage src={v.images[0]?.imageUrl} alt="" sizes="400px" />
-                </div>
-              ))}
-              <div className="relative aspect-[3/4] overflow-hidden rounded-3xl bg-card shadow-float">
-                <VehicleImage src={hero.images[0]?.imageUrl} alt="" sizes="(min-width: 1024px) 448px, 384px" priority />
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-6 pt-24 text-white">
-                  <p className="text-2xl font-bold">{vehicleTitle(hero)}</p>
-                  <p className="text-sm text-white/80">{hero.trim}</p>
-                  <div className="mt-2 flex items-center justify-between">
-                    <span className="text-xl font-semibold">{formatPrice(hero.price)}</span>
-                    <span className="text-sm text-white/80">{formatKm(hero.mileage)}</span>
-                  </div>
-                </div>
-                <span className="absolute top-6 left-6 -rotate-12 rounded-lg border-2 border-white px-2 py-0.5 text-lg font-extrabold tracking-wide text-white">LIKE</span>
-              </div>
-              <div className="mt-6 flex justify-center gap-5">
-                <span className="flex size-14 items-center justify-center rounded-full border bg-surface text-foreground shadow-card"><X className="size-6" /></span>
-                <span className="flex size-14 items-center justify-center rounded-full bg-brand-gradient text-white shadow-float"><Heart className="size-6 fill-white" /></span>
-              </div>
-            </div>
-          )}
+          <HeroSwipeDemo
+            cars={featured.slice(0, 8).map((v) => ({
+              id: v.id,
+              title: vehicleTitle(v),
+              trim: v.trim,
+              price: formatPrice(v.price),
+              km: formatKm(v.mileage),
+              image: v.images[0]?.imageUrl ?? null,
+            }))}
+          />
         </div>
       </section>
 
