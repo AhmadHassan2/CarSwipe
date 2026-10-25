@@ -32,7 +32,7 @@ export default async function HomePage() {
               Skip the endless scrolling. CarSwipe learns what you like and shows you cars that fit your budget, style and commute.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Button asChild size="lg" className="h-12 rounded-full bg-primary px-6 text-base text-primary-foreground hover:opacity-90">
+              <Button asChild size="lg" variant="brand" className="h-12 rounded-full px-6 text-base">
                 <Link href="/swipe">Start swiping <ArrowRight /></Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="h-12 rounded-full px-6 text-base">
@@ -73,7 +73,7 @@ export default async function HomePage() {
               </div>
               <div className="mt-6 flex justify-center gap-5">
                 <span className="flex size-14 items-center justify-center rounded-full border bg-surface text-foreground shadow-card"><X className="size-6" /></span>
-                <span className="flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-float"><Heart className="size-6 fill-white" /></span>
+                <span className="flex size-14 items-center justify-center rounded-full bg-brand-gradient text-white shadow-float"><Heart className="size-6 fill-white" /></span>
               </div>
             </div>
           )}
@@ -112,12 +112,12 @@ export default async function HomePage() {
       )}
 
       <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
-        <div className="flex flex-col items-start gap-6 overflow-hidden rounded-3xl bg-foreground p-8 text-background sm:p-12 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col items-start gap-6 overflow-hidden rounded-3xl bg-brand-gradient p-8 text-white sm:p-12 md:flex-row md:items-center md:justify-between">
           <div>
             <h2 className="text-2xl font-bold sm:text-3xl">Selling a car?</h2>
-            <p className="mt-2 max-w-md text-background/80">List it in minutes and put it in front of buyers who are already swiping for something like it.</p>
+            <p className="mt-2 max-w-md text-white/85">List it in minutes and put it in front of buyers who are already swiping for something like it.</p>
           </div>
-          <Button asChild size="lg" variant="secondary" className="h-12 rounded-full px-6 text-base text-foreground">
+          <Button asChild size="lg" className="h-12 rounded-full bg-white px-6 text-base text-[#1c1c1f] hover:bg-white/90">
             <Link href="/sell">List your car <ArrowRight /></Link>
           </Button>
         </div>

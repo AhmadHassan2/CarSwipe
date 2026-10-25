@@ -27,6 +27,6 @@ export async function contactSellerAction(vehicleId: string, content: string) {
 export async function sendMessageAction(conversationId: string, content: string) {
   return run(async (userId) => {
     const m = await sendMessage(userId, conversationId, content);
-    return { messageId: m.id };
+    return { messageId: m.id, createdAt: m.createdAt.toISOString() };
   });
 }

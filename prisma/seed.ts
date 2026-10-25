@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { CITIES } from "../src/lib/locations";
-import { DEMO_BUYER, DEMO_PASSWORD, SELLERS } from "./seed-data/sellers";
+import { DEMO_BUYER, DEMO_PASSWORD, REVIEWERS, REVIEWS, SELLERS } from "./seed-data/sellers";
 import { VEHICLES } from "./seed-data/vehicles";
 
 const db = new PrismaClient({
@@ -40,7 +40,7 @@ async function main() {
   // Only demo rows are removed so real accounts survive re-seeding.
   await db.vehicle.deleteMany({ where: { isDemo: true } });
   await db.user.deleteMany({
-    where: { email: { in: [...SELLERS.map((s) => s.email), DEMO_BUYER.email] } },
+    where: { email: { in: [...SELLERS.map((s) => s.email), ...REVIEWERS.map((r) => r.email), DEMO_BUYER.email] } },
   });
 
   const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 12);
@@ -132,6 +132,26 @@ async function main() {
           })),
         },
       },
+    });
+  }
+
+  console.log("Adding seller reviews…");
+  const reviewerIds: string[] = [];
+  for (const r of REVIEWERS) {
+    const u = await db.user.create({ data: { name: r.name, email: r.email, passwordHash, emailVerified: new Date() } });
+    reviewerIds.push(u.id);
+  }
+  for (const [key, reviews] of Object.entries(REVIEWS)) {
+    const seller = sellerIds.get(key);
+    if (!seller) throw new Error(`Unknown seller ${key}`);
+    await db.sellerReview.createMany({
+      data: reviews.map(([idx, rating, comment, days]) => ({
+        sellerId: seller.id,
+        reviewerId: reviewerIds[idx]!,
+        rating,
+        comment,
+        createdAt: new Date(now - days * DAY),
+      })),
     });
   }
 

@@ -104,12 +104,15 @@ export async function listConversations(userId: string) {
   });
   const unreadMap = new Map(unread.map((u) => [u.conversationId, u._count._all]));
   return convos.map((c) => {
-    const other = c.buyerId === userId ? c.seller : c.buyer;
+    const isBuyer = c.buyerId === userId;
+    const other = isBuyer
+      ? { id: c.seller.id, name: c.seller.dealerName ?? c.seller.name, image: c.seller.image }
+      : { id: c.buyer.id, name: c.buyer.name, image: c.buyer.image };
     return {
       id: c.id,
-      role: c.buyerId === userId ? ("buyer" as const) : ("seller" as const),
+      role: isBuyer ? ("buyer" as const) : ("seller" as const),
       vehicle: c.vehicle,
-      other: { id: other.id, name: ("dealerName" in other && other.dealerName) || other.name, image: other.image },
+      other,
       lastMessage: c.messages[0] ?? null,
       lastMessageAt: c.lastMessageAt,
       unread: unreadMap.get(c.id) ?? 0,
@@ -163,4 +166,14 @@ export async function unreadMessageCount(userId: string) {
       conversation: { OR: [{ buyerId: userId }, { sellerId: userId }] },
     },
   });
+}
+
+/** Timestamp of the newest message from `userId` that the other side has read. */
+export async function getReadUpTo(userId: string, conversationId: string) {
+  const m = await db.message.findFirst({
+    where: { conversationId, senderId: userId, readAt: { not: null } },
+    orderBy: { createdAt: "desc" },
+    select: { createdAt: true },
+  });
+  return m?.createdAt ?? null;
 }

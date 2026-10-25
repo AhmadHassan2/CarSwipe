@@ -51,7 +51,7 @@ export function SiteHeader() {
           </div>
           {viewer ? (
             <>
-              <Button asChild size="sm" className="hidden rounded-full bg-primary text-primary-foreground hover:opacity-90 sm:inline-flex">
+              <Button asChild size="sm" variant="brand" className="hidden rounded-full sm:inline-flex">
                 <Link href="/sell"><Plus /> Sell your car</Link>
               </Button>
               <NotificationsMenu />
@@ -62,7 +62,7 @@ export function SiteHeader() {
               <Button asChild variant="ghost" size="sm" className="rounded-full">
                 <Link href="/login">Sign in</Link>
               </Button>
-              <Button asChild size="sm" className="rounded-full bg-primary text-primary-foreground hover:opacity-90">
+              <Button asChild size="sm" variant="brand" className="rounded-full">
                 <Link href="/signup">Get started</Link>
               </Button>
             </>

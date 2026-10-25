@@ -101,18 +101,20 @@ model User {
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 
-  accounts      Account[]
-  sessions      Session[]
-  preferences   UserPreferences?
-  vehicles      Vehicle[]
-  swipes        Swipe[]
-  saved         SavedVehicle[]
-  buyerConvos   Conversation[]   @relation("BuyerConversations")
-  sellerConvos  Conversation[]   @relation("SellerConversations")
-  messages      Message[]
-  views         ListingView[]
-  notifications Notification[]
-  reports       Report[]
+  accounts        Account[]
+  sessions        Session[]
+  preferences     UserPreferences?
+  vehicles        Vehicle[]
+  swipes          Swipe[]
+  saved           SavedVehicle[]
+  buyerConvos     Conversation[]   @relation("BuyerConversations")
+  sellerConvos    Conversation[]   @relation("SellerConversations")
+  messages        Message[]
+  views           ListingView[]
+  notifications   Notification[]
+  reports         Report[]
+  reviewsReceived SellerReview[]   @relation("ReviewsReceived")
+  reviewsWritten  SellerReview[]   @relation("ReviewsWritten")
 }
 
 model Account {
@@ -357,4 +359,22 @@ model Notification {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, readAt, createdAt])
+}
+
+/// A buyer's 1–5 star rating of a seller. One per buyer per seller; only
+/// buyers who have messaged the seller about a listing may leave one.
+model SellerReview {
+  id         String   @id @default(cuid())
+  sellerId   String
+  reviewerId String
+  rating     Int
+  comment    String?  @db.VarChar(1000)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  seller   User @relation("ReviewsReceived", fields: [sellerId], references: [id], onDelete: Cascade)
+  reviewer User @relation("ReviewsWritten", fields: [reviewerId], references: [id], onDelete: Cascade)
+
+  @@unique([sellerId, reviewerId])
+  @@index([sellerId, createdAt])
 }

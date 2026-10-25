@@ -58,7 +58,7 @@ export function LoginForm({ callbackUrl, googleEnabled, notice }: { callbackUrl?
           <PasswordInput id="password" autoComplete="current-password" />
         </Field>
         {state.error && <p role="alert" className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{state.error}</p>}
-        <Button type="submit" className="h-11 w-full" disabled={pending}>
+        <Button type="submit" variant="brand" className="h-11 w-full" disabled={pending}>
           {pending && <Loader2 className="animate-spin" />} Sign in
         </Button>
       </form>
@@ -89,7 +89,7 @@ export function SignupForm({ googleEnabled }: { googleEnabled: boolean }) {
         </Field>
         <p className="text-xs text-muted-foreground">At least 8 characters with a letter and a number.</p>
         {state.error && <p role="alert" className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{state.error}</p>}
-        <Button type="submit" className="h-11 w-full" disabled={pending}>
+        <Button type="submit" variant="brand" className="h-11 w-full" disabled={pending}>
           {pending && <Loader2 className="animate-spin" />} Create account
         </Button>
       </form>

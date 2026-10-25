@@ -133,7 +133,7 @@ export function SwipeDeck({ initial, queryString }: { initial: SwipeVehicle[]; q
         <button onClick={() => swipe("PASS")} aria-label="Pass" className={cn("flex size-16 items-center justify-center rounded-full border bg-surface shadow-card transition-transform hover:scale-105 active:scale-95")}>
           <X className="size-7" />
         </button>
-        <button onClick={() => swipe("LIKE")} aria-label="Like and save" className="flex size-16 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-float transition-transform hover:scale-105 active:scale-95">
+        <button onClick={() => swipe("LIKE")} aria-label="Like and save" className="flex size-16 items-center justify-center rounded-full bg-brand-gradient text-white shadow-float transition-transform hover:scale-105 active:scale-95">
           <Heart className="size-7 fill-current" />
         </button>
       </div>

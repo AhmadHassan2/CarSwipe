@@ -1,9 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { route } from "@/server/api";
-import { getVehiclesByIds } from "@/server/services/vehicles";
+import { getCompareVehicles, getVehiclesByIds } from "@/server/services/vehicles";
 
-/** Public lookup by ids — used by compare and guest garage. */
+/** Public lookup by ids. `?view=compare` returns the extra spec fields for the compare table. */
 export const GET = route(async (req: NextRequest) => {
-  const ids = (req.nextUrl.searchParams.get("ids") ?? "").split(",").filter(Boolean).slice(0, 50);
-  return NextResponse.json({ vehicles: await getVehiclesByIds(ids) });
+  const params = req.nextUrl.searchParams;
+  const ids = (params.get("ids") ?? "").split(",").filter(Boolean).slice(0, 50);
+  const vehicles = params.get("view") === "compare" ? await getCompareVehicles(ids) : await getVehiclesByIds(ids);
+  return NextResponse.json({ vehicles });
 });

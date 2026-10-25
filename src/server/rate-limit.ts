@@ -36,6 +36,7 @@ export const LIMITS = {
   message: [30, 60_000],
   upload: [40, 10 * 60_000],
   report: [10, 60 * 60_000],
+  review: [10, 60 * 60_000],
   swipe: [120, 60_000],
   password: [5, 15 * 60_000],
 } as const satisfies Record<string, readonly [number, number]>;

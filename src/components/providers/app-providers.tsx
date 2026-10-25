@@ -31,7 +31,7 @@ export function AppProviders({
             <SavedHydrator ids={savedIds} />
             {viewer && <GuestSwipeImporter />}
             {children}
-            <Toaster position="top-center" richColors closeButton />
+            <Toaster position="top-center" closeButton />
           </TooltipProvider>
         </ViewerProvider>
       </QueryClientProvider>

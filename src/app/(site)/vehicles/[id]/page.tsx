@@ -10,6 +10,9 @@ import { CompareButton } from "@/components/vehicles/compare-button";
 import { ContactSeller } from "@/components/vehicles/contact-seller";
 import { VehicleGrid } from "@/components/vehicles/vehicle-card";
 import { UserAvatar } from "@/components/shared/user-avatar";
+import { RatingSummaryInline } from "@/components/shared/star-rating";
+import { SellerReviews } from "@/components/vehicles/seller-reviews";
+import { getRatingSummary, getReviewEligibility, listReviews } from "@/server/services/reviews";
 import {
   BODY_STYLE_LABELS, CONDITION_LABELS, DRIVETRAIN_LABELS, FUEL_TYPE_LABELS, SELLER_TYPE_LABELS, TRANSMISSION_LABELS,
 } from "@/features/vehicles/constants";
@@ -35,7 +38,12 @@ export default async function VehiclePage({ params }: PageProps<"/vehicles/[id]"
   if ((v.status === "DRAFT" || v.status === "REMOVED") && !isOwner) notFound();
   if (!isOwner) await recordView(v.id, viewerId).catch(() => {});
 
-  const related = await getRelatedVehicles(v);
+  const [related, rating, reviews, eligibility] = await Promise.all([
+    getRelatedVehicles(v),
+    getRatingSummary(v.sellerId),
+    listReviews(v.sellerId, 5),
+    getReviewEligibility(viewerId, v.sellerId),
+  ]);
   const title = vehicleTitle(v);
   const sellerName = v.seller.dealerName ?? v.seller.name ?? "Seller";
   const unavailable = v.status !== "ACTIVE";
@@ -93,6 +101,16 @@ export default async function VehiclePage({ params }: PageProps<"/vehicles/[id]"
               </ul>
             </section>
           )}
+
+          <SellerReviews
+            sellerId={v.sellerId}
+            sellerName={sellerName}
+            summary={rating}
+            reviews={reviews}
+            canReview={eligibility.canReview}
+            existing={eligibility.existing}
+            signedIn={Boolean(viewerId)}
+          />
         </div>
 
         <aside className="space-y-4 lg:sticky lg:top-20 lg:self-start">
@@ -121,6 +139,7 @@ export default async function VehiclePage({ params }: PageProps<"/vehicles/[id]"
             <UserAvatar name={sellerName} image={v.seller.image} className="size-11" />
             <div className="min-w-0">
               <p className="truncate font-medium">{sellerName}</p>
+              <a href="#reviews-heading" className="block"><RatingSummaryInline average={rating.average} count={rating.count} /></a>
               <p className="flex items-center gap-1 text-xs text-muted-foreground">
                 {v.seller.sellerType === "DEALER" && <Building2 className="size-3.5" />}
                 {SELLER_TYPE_LABELS[v.seller.sellerType]} · {v.seller._count.vehicles} active {v.seller._count.vehicles === 1 ? "listing" : "listings"}

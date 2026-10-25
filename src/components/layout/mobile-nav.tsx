@@ -26,11 +26,11 @@ export function MobileNav() {
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "flex flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-medium text-muted-foreground",
-                  active && "text-foreground",
+                  active && "text-primary",
                 )}
               >
                 {isSell ? (
-                  <span className="flex size-10 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-float">
+                  <span className="flex size-10 items-center justify-center rounded-full bg-brand-gradient text-white shadow-float">
                     <Icon className="size-5" />
                   </span>
                 ) : (

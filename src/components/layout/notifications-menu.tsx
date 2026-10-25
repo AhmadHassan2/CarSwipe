@@ -78,7 +78,7 @@ export function NotificationsMenu() {
                       <p className="line-clamp-2 text-xs text-muted-foreground">{n.content}</p>
                       <p className="mt-1 text-[11px] text-muted-foreground">{timeAgo(n.createdAt)}</p>
                     </div>
-                    {!n.readAt && <span className="mt-2 size-2 shrink-0 rounded-full bg-primary" aria-label="Unread" />}
+                    {!n.readAt && <span className="mt-2 size-2 shrink-0 rounded-full bg-brand-pink" aria-label="Unread" />}
                   </div>
                 );
                 return <li key={n.id}>{n.href ? <Link href={n.href}>{body}</Link> : body}</li>;

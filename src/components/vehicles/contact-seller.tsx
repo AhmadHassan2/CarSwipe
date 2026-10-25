@@ -21,7 +21,7 @@ export function ContactSeller({ vehicleId, title, isOwner, unavailable }: { vehi
   }
   if (!viewer) {
     return (
-      <Button asChild className="h-11 w-full">
+      <Button asChild variant="brand" className="h-11 w-full">
         <Link href={`/login?callbackUrl=${encodeURIComponent(`/vehicles/${vehicleId}`)}`}><MessageCircle /> Sign in to message seller</Link>
       </Button>
     );
@@ -42,7 +42,7 @@ export function ContactSeller({ vehicleId, title, isOwner, unavailable }: { vehi
   return (
     <form onSubmit={(e) => { e.preventDefault(); send(); }} className="space-y-3">
       <Textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={4} maxLength={2000} aria-label="Message to seller" />
-      <Button type="submit" className="h-11 w-full" disabled={pending || !message.trim()}>
+      <Button type="submit" variant="brand" className="h-11 w-full" disabled={pending || !message.trim()}>
         <MessageCircle /> {pending ? "Sending…" : "Message seller"}
       </Button>
     </form>

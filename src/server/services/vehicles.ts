@@ -199,3 +199,23 @@ export async function getModelOptions(makes: string[]) {
   });
   return rows.map((r) => ({ make: r.make, model: r.model }));
 }
+
+const compareSelect = {
+  ...vehicleCardSelect,
+  engine: true,
+  horsepower: true,
+  exteriorColour: true,
+  owners: true,
+  features: true,
+} satisfies Prisma.VehicleSelect;
+export type CompareVehicle = Prisma.VehicleGetPayload<{ select: typeof compareSelect }>;
+
+export async function getCompareVehicles(ids: string[]) {
+  if (!ids.length) return [];
+  const rows = await db.vehicle.findMany({
+    where: { id: { in: ids.slice(0, 4) }, status: { in: ["ACTIVE", "PENDING", "SOLD"] } },
+    select: compareSelect,
+  });
+  const order = new Map(ids.map((id, i) => [id, i]));
+  return rows.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
+}
